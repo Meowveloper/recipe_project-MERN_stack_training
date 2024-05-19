@@ -1,32 +1,35 @@
 const Recipe = require("../models/Recipe");
 
+
 const RecipeController = {
-    index: (req, res) => {
+    index: async (req, res) => {
+        const recipes = await Recipe.find().sort({ createdAt: -1 });
         return res.json({
-            msg: "Get all recipes",
+            data: recipes,
         });
     },
 
     store: async (req, res) => {
-        try {
-            const recipe = await Recipe.create(req.body);
-            return res.json({
-                data: recipe,
-                status : "success", 
-                message : "Stored a recipe successfully"
-            });
-        } catch (err) {
-            return res.status(400).json({
-                status : "failed", 
-                message : "Something went wrong"
-            });
-        }
+        // the attributes must be 'title', description, ingredients
+        //const { title, description, ingredients } = req.body;
+        const recipe = await Recipe.create(req.body);
+        return res.json({
+            data: recipe,
+            status: "success",
+            message: "Stored a recipe successfully",
+        });
     },
 
-    show: (req, res) => {
-        return res.json({
-            msg: "Get single recipe",
-        });
+    show: async (req, res) => {
+        try {
+            const id = req.params.id;
+            let recipe = await Recipe.findById(id);
+            return res.json({
+                data: recipe,
+            });
+        } catch (err) {
+            return res.status(400).json({ message: "recipe not found.." });
+        }
     },
 
     destroy: (req, res) => {
